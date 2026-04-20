@@ -47,8 +47,7 @@ class ASVspoofDataset(Dataset):
         filepath = os.path.join(self.flac_dir, filename + ".flac")
         mel = self.get_melspectrogram(filepath)
         return mel, torch.tensor(label, dtype=torch.float32)
-
-
+    
 def get_dataloaders(batch_size=32):
     base = "data/raw/LA"
     
@@ -61,9 +60,15 @@ def get_dataloaders(batch_size=32):
         flac_dir=f"{base}/ASVspoof2019_LA_dev/flac",
         protocol_path=f"{base}/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt"
     )
-    
+
+    # Dengesiz veriyi dengele
+    labels = [s[1] for s in train_dataset.samples]
+    class_counts = [labels.count(0), labels.count(1)]
+    weights = [1.0 / class_counts[l] for l in labels]
+    sampler = torch.utils.data.WeightedRandomSampler(weights, len(weights))
+
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True, num_workers=2
+        train_dataset, batch_size=batch_size, sampler=sampler, num_workers=2
     )
     
     val_loader = torch.utils.data.DataLoader(
@@ -74,6 +79,7 @@ def get_dataloaders(batch_size=32):
     print(f"Val:   {len(val_dataset)} örnek")
     
     return train_loader, val_loader
+
 
 
 if __name__ == "__main__":
