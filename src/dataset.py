@@ -35,6 +35,10 @@ class ASVspoofDataset(Dataset):
         
         # Normalize et -1 ile 1 arasına
         mel_db = (mel_db - mel_db.mean()) / (mel_db.std() + 1e-9)
+        # 128x128'e sabitle
+        mel_db = mel_db[:, :128]
+        if mel_db.shape[1] < 128:
+            mel_db = np.pad(mel_db, ((0,0),(0, 128 - mel_db.shape[1])))
         
         return torch.FloatTensor(mel_db).unsqueeze(0)  # (1, 128, 128)
     
