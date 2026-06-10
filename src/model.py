@@ -31,8 +31,7 @@ class DeepfakeDetector(nn.Module):
             nn.Linear(128 * 16 * 16, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(256, 1),
-            nn.Sigmoid()
+            nn.Linear(256, 1)
         )
     
     def forward(self, x):
